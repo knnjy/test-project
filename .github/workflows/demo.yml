@@ -7,7 +7,7 @@ on:
 
 jobs:
   pipeline:
-    name: Code → Security → Build → Security → Test → Security
+    name: Code ? Security ? Build ? Security ? Test ? Security
     runs-on: ubuntu-latest
 
     steps:
@@ -17,4 +17,47 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Code validation
+        run: |
+          python -m py_compile $(find . -name "*.py")
+
+      - name: Security gate 1 � Static analysis
+        run: |
+          python -m pip install bandit
+          bandit -r .
+
+      - name: Security gate 2 � Dependency audit
+        run: |
+          python -m pip install pip-audit
+          pip-audit
+
+      - name: Run tests
+        run: |
+          python -m pip install pytest
+          pytest
+
+      - name: Security gate 3 � Safety dependency check
+        run: |
+          python -m pip install safety
+          safety check
+
+  deploy:
+    name: Deploy
+    needs: pipeline
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy placeholder
+        run: |
+          echo "Deployment stage: replace this with your real deployment commands."
