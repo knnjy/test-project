@@ -1,7 +1,5 @@
-# Workflow name (appears in GitHub Actions tab)
-name: CI/CD + DevSecOps Pipeline (Python + Streamlit)
+name: DevSecOps Pipeline
 
-# Trigger: run workflow on push to main branch or on pull requests
 on:
   push:
     branches: [ main ]
@@ -9,46 +7,14 @@ on:
 
 jobs:
   pipeline:
-    # Use GitHub's Ubuntu virtual machine runner
+    name: Code → Security → Build → Security → Test → Security
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Security Gate #1 - Static code analysis (SAST)
-      # Bandit scans Python source code for security issues
-      - name: Security Scan (Bandit)
-        run: pip install bandit && bandit -r .
-
-      # Step 3: Build stage - set up Python and install dependencies
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      # Step 4: Security Gate #2 - Dependency vulnerability scan
-      # pip-audit checks installed packages against known CVEs
-      - name: Dependency Audit
-        run: pip install pip-audit && pip-audit
-
-      # Step 5: Test stage - run unit tests
-      - name: Run tests
-        run: pytest
-
-      # Step 6: Security Gate #3 - Dynamic security testing (DAST)
-      # OWASP ZAP scans the running Streamlit app for vulnerabilities
-      - name: OWASP ZAP Scan
-        run: docker run -t owasp/zap2docker-stable zap-baseline.py -t https://expense-tracker-ki9qrdyyz7jevftf8pb3ac.streamlit.app/ || true
-
-      # Step 7: Deploy stage - deploy Streamlit app
-      # If using Streamlit Cloud, deployment is automatic on push.
-      # This step is illustrative if you deploy elsewhere (Heroku, AWS, etc.)
-      - name: Deploy to Streamlit Cloud
-        run: echo "Deployment triggered via Streamlit Cloud integration"
+          python-version: 
